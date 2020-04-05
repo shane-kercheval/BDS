@@ -34,6 +34,7 @@ abline(a=beta[1]+beta[3], b=beta[2], col=brandcol[2], lwd=2)
 abline(a=beta[1]+beta[4], b=beta[2], col=brandcol[3], lwd=2)
 legend("bottomleft", bty="n", lwd=2, col=brandcol, legend=levels(oj$brand))
 
+
 ## Interactions
 ## note that `*' also adds the main effects automatically
 reg_interact = glm(log(sales) ~ log(price)*brand, data=oj)
@@ -41,12 +42,29 @@ coef(reg_interact)
 ## compare brand-specific log(price) slopes to our earlier elasticity (-3.1)
 beta <- coef(reg_interact)
 
+# dominicks PRICE elasticity
+beta['log(price)']
+# minute maid PRICE elasticity
+beta['log(price)'] + beta['log(price):brandminute.maid']
+# tropicana PRICE elasticity
+beta['log(price)'] + beta['log(price):brandtropicana']
+
 plot(log(sales) ~ log(price), data=oj, col=brandcol[oj$brand], 
 	cex=.1, pch=20, bty="n")
 abline(a=beta[1], b=beta[2], col=brandcol[1], lwd=2)
 abline(a=beta[1]+beta[3], b=beta[2]+beta[5], col=brandcol[2], lwd=2)
 abline(a=beta[1]+beta[4], b=beta[2]+beta[6], col=brandcol[3], lwd=2)
 legend("bottomleft", bty="n", lwd=2, col=brandcol, legend=levels(oj$brand))
+
+
+reg = lm(log(sales) ~ log(price)*brand, data=oj)
+summary(reg)
+library(rtools)
+rt_plot_regression_variance_explained(reg)
+plot(effects::effect("log(price)", reg))
+plot(effects::effect("brand", reg))
+
+
 
 ## and finally, consider 3-way interactions
 ojreg <- glm(log(sales) ~ log(price)*brand*feat, data=oj)
@@ -63,11 +81,15 @@ coef(ojreg)
 
 
 
+
 ## for the elasticities table
 b <- coef(ojreg)
+
+# not featured
 b["log(price)"] 
 b["log(price)"] + b["log(price):brandminute.maid"]
 b["log(price)"] + b["log(price):brandtropicana"]
+# featured
 b["log(price)"] + b["log(price):feat"] 
 b["log(price)"] + b["log(price):brandminute.maid"] + b["log(price):feat"] + b["log(price):brandminute.maid:feat"]
 b["log(price)"] + b["log(price):brandtropicana"] + b["log(price):feat"] + b["log(price):brandtropicana:feat"]
