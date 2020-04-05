@@ -32,6 +32,7 @@ time <- (airline$Year-min(airline$Year))*12 + airline$Month
 summary(air <- glm(log(passengers) ~ time + month))
 
 ## if you do glmnet it likes the full model
+install.packages('glmnet')
 library(glmnet) 
 x <- sparse.model.matrix(~ time + month)
 plot(airlasso <- cv.glmnet(x=x, y=log(passengers)))
@@ -43,9 +44,11 @@ lines(date, air$fit, col="maroon", lwd=2)
 legend("topleft", legend=c("true","fit"), bty="n", lwd=3, col=c("navy","maroon"))
 
 ## plot residuals
+dev.off()
 plot(time, air$resid, type="l", ylab="residuals", lwd=2, col="grey30")
 
 ## calculate and plot the acf
+dev.off()
 airac <- acf(air$resid, lag.max=20)
 plot(log(airline$Passengers), xlab="year", ylab="log monthly passengers", type="l", col=4, lwd=2, xaxt="n")
 axis(1, at=(0:12)*12, labels=1949:1961)
