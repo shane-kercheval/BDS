@@ -31,6 +31,8 @@ fdr_cut(pvals)
 cut <- glm(FAIL ~ ., data=SC[,c("FAIL", names(signif))], family="binomial")
 1 - cut$deviance/cut$null.deviance # new in-sample R2
 
+cut_vars <- c("FAIL", names(signif))
+
 ## Out of sample prediction experiment
 ## first, define the deviance and R2 functions
 
@@ -61,23 +63,32 @@ n <- nrow(SC) # the number of observations
 K <- 10 # the number of `folds'
 # create a vector of fold memberships (random order)
 foldid <- rep(1:K,each=ceiling(n/K))[sample(1:n)]
+
+#why not this?
+#sample.int(K, n, replace = TRUE)
+
+
 # create an empty dataframe of results
 OOS <- data.frame(full=rep(NA,K), cut=rep(NA,K)) 
 # use a for loop to run the experiment
 for(k in 1:K){ 
-	train <- which(foldid!=k) # train on all but fold `k'
-		
+	train <- which(foldid != k) # train on all but fold `k'
+	
+	training_data <- SC[train, ]
+	prediction_data <- SC[-train, ]
 	## fit the two regressions
-	rfull <- glm(FAIL~., data=SC, subset=train, family=binomial)
-	rcut <- glm(FAIL~., data=SC[,cutvar], subset=train, family=binomial)
+	rfull <- glm(FAIL~., data=training_data, family=binomial)
+	rcut <- glm(FAIL~., data=training_data[, cut_vars], family=binomial)
 
 	## get predictions: type=response so we have probabilities
-	predfull <- predict(rfull, newdata=SC[-train,], type="response")
-	predcut <- predict(rcut, newdata=SC[-train,], type="response")
+	predfull <- predict(rfull, newdata=prediction_data, type="response")
+	predcut <- predict(rcut, newdata=prediction_data, type="response")
 
 	## calculate and log R2
-	OOS$full[k] <- R2(y=SC$FAIL[-train], pred=predfull, family="binomial")
-	OOS$cut[k] <- R2(y=SC$FAIL[-train], pred=predcut, family="binomial")
+	# out of sample i.e. 
+	# y == actual; pred == prediction
+	OOS$full[k] <- R2(y=prediction_data$FAIL, pred=predfull, family="binomial")
+	OOS$cut[k] <- R2(y=prediction_data$FAIL, pred=predcut, family="binomial")
 
 	## print progress
 	cat(k, " ")
