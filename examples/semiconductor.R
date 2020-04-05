@@ -15,7 +15,7 @@ fdr_cut <- function(pvals, q=0.1){
   pvals <- sort(pvals[!is.na(pvals)])
   N <- length(pvals)
   k <- rank(pvals, ties.method="min")
-  alpha <- max(pvals[ pvals<= (q*k/(N+1)) ])
+  alpha <- max(pvals[ pvals <= (q*k/(N+1)) ])
   
   plot(pvals, log="xy", xlab="order", main=sprintf("FDR of %g",q),
    ylab="p-value", bty="n", col=c(8,2)[(pvals<=alpha) + 1], pch=20)
