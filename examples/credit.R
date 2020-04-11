@@ -24,6 +24,12 @@ plot(factor(Default) ~ history, data=credit, col=c(8,2), ylab="Default") ## surp
 ## build a design matrix 
 library(gamlr)
 source("naref.R")
+head(credit)
+head(naref(credit))
+
+levels(credit$purpose)
+levels(naref(credit$purpose))
+
 credx <- sparse.model.matrix( Default ~ .^2, data=naref(credit))[,-1]
 default <- credit$Default
 credscore <- cv.gamlr(credx, default, family="binomial", verb=TRUE)
