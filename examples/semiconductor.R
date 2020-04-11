@@ -65,7 +65,7 @@ K <- 10 # the number of `folds'
 foldid <- rep(1:K,each=ceiling(n/K))[sample(1:n)]
 
 #why not this?
-#sample.int(K, n, replace = TRUE)
+#sample.int(K, n)
 
 
 # create an empty dataframe of results
