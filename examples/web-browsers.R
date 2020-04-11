@@ -13,8 +13,8 @@ nrow(browser)
 mean(browser$spend)
 var(browser$spend)/nrow(browser)
 
-xbar <- mean(browser$spend)
-xbse <-  sd(browser$spend)/sqrt(nrow(browser))
+(xbar <- mean(browser$spend))
+(xbse <-  sd(browser$spend)/sqrt(nrow(browser)))
 
 xx <- seq(1650,2250,length=1000)
 
@@ -50,7 +50,9 @@ sd(mus)
 sqrt(sig2/1e4)
 
 ## usual estiamtion of variance
-smallsamp <- browser$spend[sample.int(nrow(browser),100)]
+set.seed(43)
+sample_size <- 900
+smallsamp <- browser$spend[sample.int(nrow(browser), sample_size)]
 s <- sd(smallsamp) # sample variance
 s
 sd(browser$spend)
@@ -58,12 +60,19 @@ s/sd(browser$spend)
 
 ## CI bootstrap
 eb <- c()
+B <- 10000
 for (b in 1:B){
-	sb <- sd(smallsamp[sample.int(100, replace=TRUE)]) 
+	sb <- sd(smallsamp[sample.int(sample_size, replace=TRUE)])
 	eb <- c(eb, sb-s)
 }
 mean(eb)
+mean(s - eb)
+sd(browser$spend)
+
 tvals <- quantile(eb, c(0.05, 0.95))
+tvals
+s - tvals[2:1]
+
 sd(mub)
 
 ## regression analysis
@@ -99,6 +108,10 @@ pval <- summary(spendy)$coef[-1,"Pr(>|t|)"]
 
 pdf("fig1.9.pdf", width=4, height=4)
 par(mai=c(.8,.8,.2,.2))
+
+length(pval)
+nrow(browser)
+
 plot(sort(pval), bty="n", xlab="rank", ylab=expression(italic(p)-values))
 abline(a=0, b=.1/9)
 points(sort(pval)[1:5], col=2, pch=20)
