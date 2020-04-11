@@ -30,6 +30,7 @@ head(naref(credit))
 levels(credit$purpose)
 levels(naref(credit$purpose))
 
+# the -1 drops the intercept column
 credx <- sparse.model.matrix( Default ~ .^2, data=naref(credit))[,-1]
 default <- credit$Default
 credscore <- cv.gamlr(credx, default, family="binomial", verb=TRUE)
