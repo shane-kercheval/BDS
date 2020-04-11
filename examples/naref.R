@@ -18,6 +18,11 @@ naref <- function(DF){
 	return(as.data.frame(DF))
 }
 
+credit <- read.csv("credit.csv")
+levels(credit$purpose)
+levels(naref(credit$purpose))
+
+
 
 n <- 1000
 p <- 3
