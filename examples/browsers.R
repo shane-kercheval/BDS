@@ -11,20 +11,40 @@ web$site <- factor(web$site, levels=1:length(sitenames), labels=sitenames)
 ## also factor machine id
 web$id <- factor(web$id, levels=1:length(unique(web$id)))
 
+head(web)
 ## get total visits per-machine and % of time on each site
 ## tapply(a,b,c) does c(a) for every level of factor b.
-machinetotals <- as.vector(tapply(web$visits,web$id,sum)) 
-visitpercent <- 100*web$visits/machinetotals[web$id]
+
+library(dplyr)
+web %>% count(id, wt=visits) %>% head()
+
+machinetotals <- as.vector(tapply(web$visits, web$id, sum))
+machinetotals[1:6]  # same as count above
+visitpercent <- 100 * web$visits / machinetotals[web$id]
 
 ## use this info in a sparse matrix
 ## this is something you'll be doing a lot; familiarize yourself.
 xweb <- sparseMatrix(
-	i=as.numeric(web$id), j=as.numeric(web$site), x=visitpercent,
-	dims=c(nlevels(web$id),nlevels(web$site)),
-	dimnames=list(id=levels(web$id), site=levels(web$site)))
+	i=as.numeric(web$id),  # i = row = person; this will have duplicates as the same person can appear many times in the dataset (i.e may be assocaited with multiple websites)
+	j=as.numeric(web$site),  # j = column = website; this will also have duplicates as each person is associated with many websites and a website with many people
+	x=visitpercent,  # x = value at row i column j
+	dims=c(nlevels(web$id),  # number of rows
+	       nlevels(web$site)),  # number of columns
+	dimnames=list(id=levels(web$id),  # row names
+	              site=levels(web$site)))  # column names
+nrow(web)
+nlevels(web$id)
+nlevels(web$site)
+dim(xweb)
+10000*1000  # number of possible "cells" of sparse matrix
+nrow(web)  # but only this many are populated
+nrow(web) / (10000 * 1000)  # about ~23% of cells are populated
+summary(xweb)
 
 # what sites did household 1 visit?
+View(as.matrix(xweb))
 head(xweb[1, xweb[1,]!=0])
+sum(xweb[1, xweb[1,]!=0])
 
 ## now read in the spending data 
 yspend <- read.csv("browser-totalspend.csv", row.names=1)  # us 1st column as row names
@@ -55,6 +75,7 @@ betamin <- coef(cv.spender, select="min") ## min cv selection
 cbind(beta1se,betamin)[c("tvguide.com","americanexpress.com"),]
 
 ## plot them together
+dev.off()
 par(mfrow=c(1,2))
 plot(cv.spender)
 plot(cv.spender$gamlr) ## cv.gamlr includes a gamlr object
