@@ -90,6 +90,24 @@ credhalf <- gamlr(credx[-test,], default[-test], family="binomial")
 predoos <- predict(credhalf, credx[test,], type="response")
 defaultoos <- default[test]
 
+summary(credhalf)
+dev.off()
+plot(credhalf)
+
+interations <- as.data.frame(summary(credhalf))
+interations[which(interations$aicc == min(interations$aicc)), ]
+min_aicc_lambda <- interations[which(interations$aicc == min(interations$aicc)), ]$lambda
+log(min_aicc_lambda)
+
+
+credhalf_cv <- cv.gamlr(credx[-test,], default[-test], family="binomial")
+interations <- as.data.frame(summary(credhalf_cv))
+interations[which(interations$oos.r2 == min(interations$oos.r2)), ]
+min_aicc_lambda_cv <- interations[which(interations$oos.r2 == min(interations$oos.r2)), ]$lambda
+log(min_aicc_lambda_cv)
+log(min_aicc_lambda)
+
+
 ## roc curve and fitted distributions
 source("roc.R")
 
