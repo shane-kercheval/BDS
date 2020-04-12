@@ -103,6 +103,7 @@ legend("topleft", bty="n",
 
 
 ## all metrics, together in a path plot.
+dev.off()
 plot(spender, col="grey")
 abline(v=ll[which.min(AICc(spender))], col="black", lty=2)
 abline(v=ll[which.min(AIC(spender))], col="orange", lty=2)
@@ -112,8 +113,3 @@ abline(v=log(cv.spender$lambda.1se), col="purple", lty=2)
 legend("topright", bty="n", lwd=1, 
 	col=c("black","orange","green","blue","purple"),
 	legend=c("AICc","AIC","BIC","CV.min","CV.1se"))
-
-
-
-
-
