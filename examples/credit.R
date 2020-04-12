@@ -19,19 +19,30 @@ credit <- credit[,c("Default", "duration", "amount",
 ## plot a mosaic
 par(mai=c(.8,.8,.1,.1))
 plot(factor(Default) ~ history, data=credit, col=c(8,2), ylab="Default") ## surprise!
+
+credit %>% count(history, Default) %>% group_by(history) %>% mutate(perc_Default = n / sum(n)) %>% ungroup() %>% filter(Default == 1)
 ## the dangers of choice-based sampling!  
 
 ## build a design matrix 
 library(gamlr)
 source("naref.R")
+# same data, but naref adds NA as the first factor level so sparse.model.matrix creates a dummy variable for all categories
 head(credit)
 head(naref(credit))
 
 levels(credit$purpose)
 levels(naref(credit$purpose))
 
+# what is ^2 for
+# it looks like it is what specifies the interaction between every cateogry/columm (pairwise interactions)
+# https://stackoverflow.com/questions/22649536/model-matrix-with-all-pairwise-interactions-between-columns
+credx <- sparse.model.matrix( Default ~ ., data=naref(credit))[,-1]
+dim(credx)
 # the -1 drops the intercept column
+# the results is that we have a "one-hot encoded" matrix without the intercept
 credx <- sparse.model.matrix( Default ~ .^2, data=naref(credit))[,-1]
+dim(credx)
+
 default <- credit$Default
 credscore <- cv.gamlr(credx, default, family="binomial", verb=TRUE)
 
@@ -39,10 +50,10 @@ par(mfrow=c(1,2))
 plot(credscore$gamlr)
 plot(credscore)
 
-sum(coef(credscore, s="min")!=0) # min
-sum(coef(credscore$gamlr)!=0) # AICc
+sum(coef(credscore, s="min") != 0) # min
+sum(coef(credscore$gamlr) != 0) # AICc
 
-sum(coef(credscore)!=0) # 1se
+sum(coef(credscore) != 0) # 1se
 sum(coef(credscore$gamlr, s=which.min(AIC(credscore$gamlr)))!=0) # AIC
 sum(coef(credscore$gamlr, s=which.min(BIC(credscore$gamlr)))!=0) # BIC
 
@@ -59,11 +70,18 @@ boxplot(pred ~ default, xlab="default", ylab="prob of default", col=c("pink","do
 ## what are our misclassification rates?
 rule <- 1/5 # move this around to see how these change
 
-sum( (pred>rule)[default==0] )/sum(pred>rule) ## false positive rate
-sum( (pred<rule)[default==1] )/sum(pred<rule) ## false negative rate
+sum((pred > rule)[default==0]) / sum(pred > rule) ## false positive rate
+sum((pred <= rule)[default==1]) / sum(pred <= rule) ## false negative rate
 
-sum( (pred>rule)[default==1] )/sum(default==1) ## sensitivity
-sum( (pred<rule)[default==0] )/sum(default==0) ## specificity
+
+
+sum((pred > rule)[default==1]) / sum(default==1) ## sensitivity
+# or
+mean((pred > rule)[default==1])
+
+sum((pred <= rule)[default==0]) / sum(default==0) ## specificity
+# or
+mean((pred <= rule)[default==0])
 
 # OOS ROC curve
 # refit the model using only 1/2 of data
