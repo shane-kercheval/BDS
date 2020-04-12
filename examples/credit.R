@@ -73,8 +73,6 @@ rule <- 1/5 # move this around to see how these change
 sum((pred > rule)[default==0]) / sum(pred > rule) ## false positive rate
 sum((pred <= rule)[default==1]) / sum(pred <= rule) ## false negative rate
 
-
-
 sum((pred > rule)[default==1]) / sum(default==1) ## sensitivity
 # or
 mean((pred > rule)[default==1])
@@ -94,18 +92,16 @@ summary(credhalf)
 dev.off()
 plot(credhalf)
 
-interations <- as.data.frame(summary(credhalf))
-interations[which(interations$aicc == min(interations$aicc)), ]
-min_aicc_lambda <- interations[which(interations$aicc == min(interations$aicc)), ]$lambda
-log(min_aicc_lambda)
 
+## log lambdas selected under various criteria
+log(credhalf$lambda[which.min(AICc(credhalf))])
+log(credhalf$lambda[which.min(AIC(credhalf))])
+log(credhalf$lambda[which.min(BIC(credhalf))])
+log(credscore$lambda.min)
+log(credscore$lambda.1se)
 
-credhalf_cv <- cv.gamlr(credx[-test,], default[-test], family="binomial")
-interations <- as.data.frame(summary(credhalf_cv))
-interations[which(interations$oos.r2 == min(interations$oos.r2)), ]
-min_aicc_lambda_cv <- interations[which(interations$oos.r2 == min(interations$oos.r2)), ]$lambda
-log(min_aicc_lambda_cv)
-log(min_aicc_lambda)
+log(credhalf$lambda[which.min(AICc(credhalf))])
+log(credscore$lambda.min)
 
 
 ## roc curve and fitted distributions
