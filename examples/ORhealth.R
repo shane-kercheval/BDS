@@ -121,6 +121,7 @@ table(P[,c("selected","numhh")])
 lin <- glm(doc_any_12m ~ selected + numhh, data=P)
 round( summary(lin)$coef["selected",],4) # 6-7% increase in prob
 
+# scale=FALSE only centers, not scales data
 x <- scale( model.matrix( ~ numhh, data=P)[,-1], scale=FALSE)
 colMeans(x)
 linadj <- glm(doc_any_12m ~ selected*x, data=P)
