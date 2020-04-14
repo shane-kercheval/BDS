@@ -13,14 +13,19 @@ descr <- read.dta("OHIE_Public_Use_Files/OHIE_Data/oregonhie_descriptive_vars.dt
 prgm <- read.dta("OHIE_Public_Use_Files/OHIE_Data/oregonhie_stateprograms_vars.dta")
 s12 <- read.dta("OHIE_Public_Use_Files/OHIE_Data/oregonhie_survey12m_vars.dta")
 
+head(prgm)
+head(s12)
+
 # nicely organized, one row per person
-all(s12$person_id == descr$person_id)
-all(s12$person_id == prgm$person_id)
+stopifnot(all(s12$person_id == descr$person_id))
+stopifnot(all(s12$person_id == prgm$person_id))
 
 P <- descr[,c("person_id","household_id", "numhh_list")]
 P$medicaid <- as.numeric(prgm[,"ohp_all_ever_firstn_30sep2009"]=="Enrolled")
 P$selected <- as.numeric(descr[,"treatment"]=="Selected")
 levels(P$numhh_list) <- c("1","2","3+")
+
+head(P)
 
 # 12 month is the survey that really matters
 # need to control for household size interacted with survey return time
@@ -31,6 +36,7 @@ Y <- s12[,c("weight_12m",
 Y$doc_any_12m <- as.numeric(Y$doc_any_12m=="Yes")
 Y$er_any_12m <- as.numeric(Y$er_any_12m=="Yes")
 Y$hosp_any_12m <- as.numeric(Y$hosp_any_12m=="Yes")
+head(Y)
 
 # smk_ever_12m - num19_12m are sources of heterogeneity, plus descr
 X <- s12[,121:147]
@@ -66,7 +72,9 @@ head(P)
 dim(P)
 table(P$selected)
 
-ybar <- tapply(P$doc_any_12m, P$selected, mean)
+P %>% group_by(selected) %>% summarise(perc_doc_any_12m = mean(doc_any_12m))
+
+(ybar <- tapply(P$doc_any_12m, P$selected, mean))
 ( ATE = ybar['1'] - ybar['0'] )
 
 nsel <- table(P[,c("selected")])
@@ -75,8 +83,15 @@ yvar <- tapply(P$doc_any_12m, P$selected, var)
 
 ATE + c(-2,2)*seATE
 
+P %>% 
+    mutate(weights = weights) %>%
+    group_by(selected) %>%
+    summarise(weighted_doc = sum(weights * doc_any_12m),
+              weighted_total = sum(weights),
+              weighted_perc = weighted_doc / weighted_total)
+
 nsel_w <- tapply(weights, P$selected, sum)
-ybar_w <- tapply(weights*P$doc_any_12m, P$selected, sum)/nsel_w
+ybar_w <- tapply(weights * P$doc_any_12m, P$selected, sum)/nsel_w
 ( ATEweighted <-  ybar_w['1'] - ybar_w['0'] )
 
 ## unweighted analysis for all response options
