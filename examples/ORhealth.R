@@ -155,12 +155,19 @@ sqrt(vcovCL(linadj, cluster = P$household_id)[2,2])
 lgt <- glm(doc_any_12m ~ selected*numhh, data=P, family="binomial")
 
 predlocs <- data.frame(selected=c(1,1,1,0,0,0), 
-	numhh=c('1','2','3+','1','2','3+'))
+                       numhh=c('1','2','3+','1','2','3+'))
 predy <- predict(lgt, newdata=predlocs, type='response')
+# probability of seeing PCP if selected, for each family size
+predy[1:3]
+# probability of seeing PCP if NOT selected, for each family size
+predy[4:6]
 ( pdiff <- predy[1:3] - predy[4:6] )
-
+# percent of dataset in each family size group
 ( mu_numhh <- table(P$numhh)/nrow(P) )
-pdiff%*%mu_numhh
+
+# weighted sum of difference
+pdiff %*% mu_numhh
+sum(pdiff * mu_numhh)  # same as previous
 
 # bootstrap 
 bootfit_lgt <- function(hhlist, boothh) {
