@@ -58,7 +58,7 @@ summary(dmareg)$coef["d:t",]
 ## just to confirm: 
 ##   we get the same thing just viewing this as a sample of n_dma differences.
 r <- tapply(semavg$y, semavg$dma, function(y) y[2]-y[1])
-d <- semavg[match(names(r),semavg$dma),"d"]
+d <- semavg[match(names(r),semavg$dma),"d"]  # get corresponding d
 rbar <- tapply(r,d,mean)
 rbarvar <- tapply(r, d, function(r) var(r)/length(r))
 rbar[2]-rbar[1]
