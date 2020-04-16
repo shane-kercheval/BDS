@@ -119,6 +119,8 @@ table(P[,c("selected","numhh")])
 # original paper also controls for dt returned, 
 # but it has no practical effect
 lin <- glm(doc_any_12m ~ selected + numhh, data=P)
+coef(lin)[2]
+coef(lin)['selected']
 round( summary(lin)$coef["selected",],4) # 6-7% increase in prob
 
 # scale=FALSE only centers, not scales data
@@ -137,10 +139,13 @@ summary(glm(yhh ~ selectedhh*xhh))
 # bootstrap
 library(boot)
 n <- nrow(P)
+# 1:n is index of dataset and this will take the indices and group them by household_id
+# the result is a list, each list element name is the household id and the values are the row indices for that household
 hhwho <- split(1:n, P$household_id) # rows grouped by HH
 bootfit <- function(hhlist, boothh) {
 	bootsamp <- unlist(hhwho[boothh])   # map from HH sample to rows
-   	coef(glm(doc_any_12m ~ selected*x, data = P, subset=bootsamp))[2]
+	# coef(model)[2] gives the coefficient for selected (could have done ['selected'] to be more clear)
+    coef(glm(doc_any_12m ~ selected*x, data = P, subset=bootsamp))[2]
 }
 bs <- boot(names(hhwho), bootfit, 999)
 sd(bs$t)
