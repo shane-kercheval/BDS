@@ -35,6 +35,16 @@ semavg <- sem[,
 setnames(semavg, "treatment_period", "t") # names to match slides
 semavg <- as.data.frame(semavg)
 
+# same thing with dplyr
+sem %>%
+    rename(t = treatment_period, d = search.stays.on) %>%
+    mutate(d = 1 - d) %>%
+    group_by(dma, t, d) %>%
+    summarise(y = mean(log(revenue))) %>%
+    as.data.frame() %>%
+    head(10)
+semavg %>% arrange(dma, t) %>% head(10)
+
 library(AER)
 
 semreg <- glm(y ~ d*t, data=semavg)
