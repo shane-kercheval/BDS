@@ -10,7 +10,8 @@ abline(v=0, col=8, lty=3)
 
 
 # a neighborhood
-w <- 5
+#w <- 5
+w <- 3
 above <- which(D$score > 0 & D$score <w)
 below <- which(D$score < 0 & D$score >-w)
 
@@ -26,9 +27,9 @@ te + c(-2,2)*sdte
 # local linear regression
 fita <- loess(y ~ score, data=D[above,], degree=1)
 fitb <- loess(y ~ score, data=D[below,], degree=1)
-rr <- seq(0.001,w-0.001,length=100)
-preda <- predict(fita,rr) 
-predb <- predict(fitb,-rr)
+rr <- seq(0.001, w-0.001, length=100)
+preda <- predict(fita, rr) 
+predb <- predict(fitb, -rr)
 
 h <- 3
 window <- which(D$score > -h & D$score < h)
