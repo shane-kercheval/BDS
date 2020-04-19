@@ -114,7 +114,8 @@ cor(drop(dhat),d)^2
 ## Note: IS R2 is what governs how much independent signal
 ## you have for estimating 
 
-summary( glm( y ~ I(d - dhat) ) )
+
+summary( glm( y ~ I(d - dhat)) )  # I() prevents the formula-interface from interpreting the argument, so it gets passed along instead to the expression-parsing part. 
 summary( glm( y ~ d + dhat) )
 
 # re-run lasso, with this (2nd column) included unpenalized
