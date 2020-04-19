@@ -67,6 +67,7 @@ legend("topleft", fill=c(2,4), legend=c("abortions","cellphones"), bty="n")
 phone <- cellrate[t+1]
 ## clearly, cellphones fight crime.
 summary(tech <- glm(y ~ phone + s + t+., data=controls))$coef['phone',]
+summary(tech)$coef['phone',]
 1 - exp(-0.372e-01)
 
 ## what is happening here is that murder has been increasing quadratically,
