@@ -16,7 +16,7 @@ preg <- lm(pobs ~ z)
 phat <- predict(preg, data.frame(z=z))
 lin2SLS <- lm(yobs ~ phat)
 
-par(mfrow=c(1,2), mai=c(.8,.8,.5,.1))
+par(mfrow=c(1,2), mai=c(.8, .8, .5, .1))
 plot(pobs, yobs, xlim=c(0,6), ylim=c(0,29), pch=21, bg=8,
 	xlab="", ylab="", 
 	bty="n", main="observed")
