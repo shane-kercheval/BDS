@@ -114,12 +114,12 @@ cor(drop(dhat),d)^2
 ## Note: IS R2 is what governs how much independent signal
 ## you have for estimating 
 
-
+# regression on y ~ residuals
 summary( glm( y ~ I(d - dhat)) )  # I() prevents the formula-interface from interpreting the argument, so it gets passed along instead to the expression-parsing part. 
 summary( glm( y ~ d + dhat) )
 
 # re-run lasso, with this (2nd column) included unpenalized
-causal <- cv.gamlr(cBind(d,dhat,x),y,free=2,lmr=1e-3)
+causal <- cv.gamlr(x=cBind(d,dhat,x), y=y, free=2, lmr=1e-3)
 coef(causal, select="min")["d",] # AICc says abortion has no causal effect.
 
 #######################
