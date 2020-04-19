@@ -26,7 +26,7 @@ controls <- data.frame(data[, c(3, 10:17)])
 ## y is de-trended log crime rate, a is as described below
 ## note we also have violent and property crime versions
 y <- data$y_murd
-d <- data$a_murd
+d <- data$a_murd  # abortion rate
 
 ## The abortion 'a_' variables are weighted average of abortion rates where
 ## weights are determined by the fraction of the type of crime committed by
@@ -96,7 +96,7 @@ naive <- cv.gamlr(cBind(d,x),y)
 coef(naive)["d",] # effect is CV selected <0
 
 ## now, what if we explicitly include dhat confounding:
-treat <- cv.gamlr(x,d, lmr=1e-3)
+treat <- cv.gamlr(x=x, y=d, lmr=1e-3)
 
 # Now, grab the predicted treatment
 # type="response" is redundant here (gaussian), 
@@ -114,7 +114,7 @@ cor(drop(dhat),d)^2
 ## Note: IS R2 is what governs how much independent signal
 ## you have for estimating 
 
-summary( glm( y ~ I(d-dhat) ) )
+summary( glm( y ~ I(d - dhat) ) )
 summary( glm( y ~ d + dhat) )
 
 # re-run lasso, with this (2nd column) included unpenalized
