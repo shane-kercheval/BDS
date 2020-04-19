@@ -16,13 +16,13 @@ names(data) <- c("state","year","pop","y_viol","y_prop","y_murd",
 ## gun: dummy for concealed weapons law
 ## beer: beer consumption per capita 
 
-data <- data[!(data$state%in%c(2,9,12)),] # AK, DC, HA are strange places
-data <- data[data$year>84 & data$year<98,] # incomplete data outside these years
+data <- data[!(data$state%in%c(2, 9, 12)), ] # AK, DC, HA are strange places
+data <- data[data$year > 84 & data$year < 98, ] # incomplete data outside these years
 data$pop <- log(data$pop)
 t <- data$year - 85
 s <- factor(data$state) ## the states are numbered alphabetically
 
-controls <- data.frame(data[,c(3,10:17)])
+controls <- data.frame(data[, c(3, 10:17)])
 ## y is de-trended log crime rate, a is as described below
 ## note we also have violent and property crime versions
 y <- data$y_murd
@@ -38,10 +38,15 @@ d <- data$a_murd
 
 ## we'll just look at murder
 ## note for convenience here I've made y,d,t, global: they are not in controls.
-summary(orig <- glm(y ~ d + t + s +., data=controls) )$coef['d',]
+reg_model <- orig <- glm(y ~ d + t + s + ., data=controls)
+summary(reg_model)
+summary(reg_model)$coef['d', ]
+
+1 - exp(summary(reg_model)$coef['d', 'Estimate'])
+
 ## this is the levitt analysis: higher abortion leads to lower crime
 
-# That abortion is only one factor inuencing crime in the late 1980s points
+# That abortion is only one factor infuencing crime in the late 1980s points
 # out the caution required in drawing any conclusions regarding an abortion-crime
 # link based on time series evidence alone.
 
