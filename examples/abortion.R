@@ -77,6 +77,7 @@ summary(tech)$coef['phone',]
 ## variable with state dummies to allow for state specific tech adoption.
 t <- factor(t)
 interact <- glm(y ~ d + t + phone*s + .^2, data=controls)
+summary(interact)
 summary(interact)$coef["d",]
 ## Abortion sign has switched direction (and is insignif)!
 dim(model.matrix(formula(interact), data=controls))
@@ -85,7 +86,7 @@ dim(model.matrix(formula(interact), data=controls))
 ## so we need a way to select only important controls
 ## try using a lasso 
 library(gamlr)
-## refactor state to have NA reference level
+## refactor state to have NA reference level (so that it includes all dummy variables (remember we need to do this for lasso))
 sna <- factor(s, levels=c(NA,levels(s)), exclude=NULL)
 x = sparse.model.matrix( ~ t + phone*sna + .^2, data=controls)[,-1]
 dim(x)
