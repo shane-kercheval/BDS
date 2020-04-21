@@ -18,6 +18,17 @@ b <- coef(spammy)
 exp(b["word_george"]) # George => !SPAM
 exp(b["word_free"]) # Free => SPAM
 
+(word_free_log_odds <- b["word_free"])
+(word_free_odds <- exp(word_free_log_odds))  # odds .... the odds that an email is spam increase almost 5 times if that email contains the word free
+word_free_odds / (1 + word_free_odds)  # probability (not 100% sure how to interpret this)
+
+(word_george_log_odds <- b["word_george"])
+exp(word_george_log_odds)
+1 / exp(word_george_log_odds)  # book
+exp(abs(word_george_log_odds))  # same as book
+(word_george_odds <- 1 / exp(word_george_log_odds))  # odds .... the odds that an email is spam increase almost 5 times if that email contains the word george
+word_george_odds / (1 + word_george_odds)  # probability (not 100% sure how to interpret this)
+
 # fit plot
 plot(spammy$fit~email$spam, 
 	xlab="", ylab=c("fitted probability of spam"), 
