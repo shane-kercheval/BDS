@@ -15,14 +15,15 @@ synthc <- function(j, tyear=1968, ...){
     # fit the model only on the years up to the treatment year (tyear)
     # y0t: the rows are the years of the time series and the columns are the units e.g. countries
 	y0t <- t(y[, 1:(tyear-1954)])
+
 	# the features (x) are all countries other than j, the dependent variable is the column j
 	# in this example, if j == 1, Basque Country (Pais Vasco), then the data from Basque of the time-series
 	# up until the treatment year (1968) is the dependent variable
 	fit <- gamlr(x = y0t[, -j], y = y0t[, j], ...)
 	#fit <- gamlr(x = y0t[, -j], y = y0t[, j], mr=1e-4)
 	plot(fit)
-	# predict using all years, without the country of interest
-	# remove the jth row of y, which correspnds to the jth column of the transposed (e.g. Basque)
+	# predict using all years, without the country of interest (because that was our dependent variable in model)
+	# i.e. basically predicting Basque for all years using our synthetic control
 	y0hat <- predict(fit, t(y[-j, ]))[, 1]
 	return(list(w=coef(fit)[,1], y0hat=y0hat ) )
 }
