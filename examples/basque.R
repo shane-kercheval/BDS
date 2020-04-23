@@ -11,16 +11,20 @@ y <- y[,1:35]
 # untreated years are through 1968
 library(gamlr)
 synthc <- function(j, tyear=1968, ...){
-	y0t <- t(y[,1:(tyear-1954)])
-	fit <- gamlr( y0t[,-j], y0t[,j], ...)
+
+	y0t <- t(y[, 1:(tyear-1954)])
+	#fit <- gamlr(x = y0t[,-j], y = y0t[,j], mr=1e-4)
+	fit <- gamlr(x = y0t[,-j], y = y0t[,j], ...)
 	plot(fit)
-	y0hat <- predict(fit, t(y[-j,]))[,1]
+	# predict using all years
+	y0hat <- predict(fit, t(y[-j,]))[, 1]
 	return(list(w=coef(fit)[,1], y0hat=y0hat ) )
 }
 
 # run the synthetic controls
 sc <- synthc(1, lmr=1e-4)
 sc$w
+sc$w[sc$w != 0]
 
 # permutation test
 library(parallel)
