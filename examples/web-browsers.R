@@ -1,17 +1,31 @@
+library(tidyverse)
+
 ##  browser spending analysis 
 browser = read.csv("web-browsers.csv")
+browser %>% View()
 
 # data histogram
+browser %>%
+    ggplot(aes(x=spend)) +
+    geom_histogram(bins=30) +
+    scale_x_log10(breaks = 10^(0:5), labels = scales::comma)
+
 par(mai=c(.8,.8,.1,.1))
 hist(log(browser$spend), freq=FALSE,
 	xaxt="n", main="", xlab="total online spend", col=8, border="grey90")
 lgrid = c(1,10,100,1000,10000,100000)
-axis(1, at=log(lgrid), labels=sprintf("%.0e",lgrid))
+axis(1, at=log(lgrid), labels=lgrid)
 
 # basic stats
 nrow(browser)
+# sample mean
 mean(browser$spend)
+# variance of *sample mean* i.e. of sampling distribution (not the variance of underlying data)
 var(browser$spend)/nrow(browser)
+# standard deviation of sampling distribution (not sd of underlying data)
+sqrt(var(browser$spend)/nrow(browser))
+# sd of underlying data
+sd(browser$spend)
 
 (xbar <- mean(browser$spend))
 (xbse <-  sd(browser$spend)/sqrt(nrow(browser)))
@@ -29,12 +43,32 @@ for (b in 1:B){
 	samp_b = sample.int(nrow(browser), replace=TRUE)
 	mub <- c(mub, mean(browser$spend[samp_b]))
 }
+mean(mub)
 sd(mub)
 
 par(mai=c(.8,.8,.2,.2))
 hist(mub, main="", xlab="average total online spend", 
 	col=8, border="grey90", freq=FALSE)
 lines(xx, dnorm(xx, xbar, xbse), col="royalblue", lwd=1.5)
+
+########################################################################
+# Bootstrap 95% CI for R-Squared
+library(boot)
+# function to obtain R-Squared from the data 
+get_mean <- function(data, indices) {
+    d <- data[indices,]$spend # allows boot to select sample 
+    return(mean(d))
+} 
+# bootstrapping with 1000 replications 
+results <- boot(data=browser, statistic=get_mean, R=1000)
+# view results
+results 
+plot(results)
+
+# get 95% confidence interval 
+boot.ci(results, type="bca")
+########################################################################
+
 
 ## parametric bootstrap
 xbar <- mean(browser$spend)
