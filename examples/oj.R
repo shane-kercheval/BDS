@@ -27,8 +27,9 @@ oj[c(100,200,300),]
 
 beta <- coef(reg)
 
-plot(log(sales) ~ log(price), data=oj, col=brandcol[oj$brand], 
-	cex=.1, pch=20, bty="n")
+plot(log(sales) ~ log(price),
+     data=oj, col=brandcol[oj$brand],
+     cex=.1, pch=20, bty="n")
 abline(a=beta[1], b=beta[2], col=brandcol[1], lwd=2)
 abline(a=beta[1]+beta[3], b=beta[2], col=brandcol[2], lwd=2)
 abline(a=beta[1]+beta[4], b=beta[2], col=brandcol[3], lwd=2)
@@ -59,6 +60,7 @@ legend("bottomleft", bty="n", lwd=2, col=brandcol, legend=levels(oj$brand))
 
 reg = lm(log(sales) ~ log(price)*brand, data=oj)
 summary(reg)
+#devtools::install_github("shane-kercheval/rtools")
 library(rtools)
 rt_plot_regression_variance_explained(reg)
 plot(effects::effect("log(price)", reg))
@@ -79,6 +81,7 @@ coef(ojreg)
 # log(price):brandminute.maid:feat -1.10922    0.12225  -9.074  < 2e-16 ***
 # log(price):brandtropicana:feat   -0.98614    0.12411  -7.946 2.00e-15 ***
 
+plot(effects::effect("brand", ojreg))
 
 
 
@@ -86,11 +89,11 @@ coef(ojreg)
 b <- coef(ojreg)
 
 # not featured
-b["log(price)"] 
+b["log(price)"]  # dominicks (reference group) 
 b["log(price)"] + b["log(price):brandminute.maid"]
 b["log(price)"] + b["log(price):brandtropicana"]
 # featured
-b["log(price)"] + b["log(price):feat"] 
+b["log(price)"] + b["log(price):feat"]   # dominicks (reference group)
 b["log(price)"] + b["log(price):brandminute.maid"] + b["log(price):feat"] + b["log(price):brandminute.maid:feat"]
 b["log(price)"] + b["log(price):brandtropicana"] + b["log(price):feat"] + b["log(price):brandtropicana:feat"]
 
