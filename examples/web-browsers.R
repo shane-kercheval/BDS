@@ -84,30 +84,53 @@ sd(mus)
 sqrt(sig2/1e4)
 
 ## usual estiamtion of variance
-set.seed(43)
-sample_size <- 900
-smallsamp <- browser$spend[sample.int(nrow(browser), sample_size)]
-s <- sd(smallsamp) # sample variance
-s
+#set.seed(43)
+#(seed <- sample.int(1000, 1))
+#set.seed(seed)
+set.seed(222)
+sample_size <- 200
+smallsamp_indices <- sample.int(n=nrow(browser), size=sample_size)
+smallsamp <- browser$spend[smallsamp_indices]
+(s <- sd(smallsamp)) # sample variance
 sd(browser$spend)
 s/sd(browser$spend)
 
+# a potential problem is that smallsamp isn't a great representation of the underlying data
+# log(browser$spend) is pretty log-normal, while log(smallsamp) is left-skewed 
+hist(log(browser$spend))
+hist(log(smallsamp))
+
 ## CI bootstrap
-eb <- c()
+# now we are using this small sample to estimate the standard deviation
+eb <- c()  # eb are the bootstrap errors (third bullet in Algo 2 pg 27)
 B <- 10000
 for (b in 1:B){
 	sb <- sd(smallsamp[sample.int(sample_size, replace=TRUE)])
 	eb <- c(eb, sb-s)
 }
-mean(eb)
 mean(s - eb)
 sd(browser$spend)
 
 tvals <- quantile(eb, c(0.05, 0.95))
 tvals
 s - tvals[2:1]
+####
+# function to obtain R-Squared from the data 
+get_sd <- function(data, indices) {
+    d <- data[indices,]$spend # allows boot to select sample 
+    return(sd(d))
+} 
+# bootstrapping with 1000 replications 
+results <- boot(data=browser[smallsamp_indices,], statistic=get_sd, R=10000)
+# view results
+results 
+s
+mean(eb) # bias from manual bootstrap
+plot(results)
+# get 95% confidence interval 
+boot.ci(results, type=c("perc", "basic"))
+####
 
-sd(mub)
 
 ## regression analysis
 summary( glm( log(spend) ~ broadband + anychildren, data=browser) )
