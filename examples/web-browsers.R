@@ -164,12 +164,19 @@ hist(exp(betas[,2]), main="", xlab="broadband multiplier",
 spendy <- glm( log(spend) ~ .-id, data=browser) 
 round(summary(spendy)$coef,2)
 pval <- summary(spendy)$coef[-1,"Pr(>|t|)"]
+options(scipen=999)
+round(sort(pval), 4)
 
 pdf("fig1.9.pdf", width=4, height=4)
 par(mai=c(.8,.8,.2,.2))
 
 length(pval)
 nrow(browser)
+
+q_cutoff <- 0.1
+
+q_cutoff / length(pval)
+.1/9
 
 plot(sort(pval), bty="n", xlab="rank", ylab=expression(italic(p)-values))
 abline(a=0, b=.1/9)
