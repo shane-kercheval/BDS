@@ -62,21 +62,8 @@ boot.ci(myBootstrap, index=1, type = c("norm", "perc", "basic"))
 #The rationale behind it is to compute differences between each bootstrap
 # replication and t0 and use percentiles of their distribution.
 
-
 plot(myBootstrap, index=2)
 quantile(myBootstrap$t[,2], probs = c(0.025, 0.5, 0.975))
 
 plot(myBootstrap, index=3)
 quantile(myBootstrap$t[,3], probs = c(0.025, 0.5, 0.975))
-
-
-
-
-
-
-
-
-
-
-
-
