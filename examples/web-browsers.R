@@ -144,6 +144,8 @@ for (b in 1:B){
 	betas <- rbind(betas, coef(reg_b))
 }
 head(betas)
+mean(betas[, 'broadband'])
+sd(betas[, 'broadband'])
 
 cor(betas[,"broadband"], betas[,"anychildren"])
 
