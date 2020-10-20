@@ -1,12 +1,17 @@
-
+options(scipen=999)
 SC <- read.csv("semiconductor.csv")
 
 ## full model
 full <- glm(FAIL ~ ., data=SC, family=binomial)
 1 - full$deviance/full$null.deviance
 
+
+
 ## grab p-values
 pvals <- summary(full)$coef[-1,4] #-1 to drop the intercept
+
+sort(pvals)[1:50]
+
 ## plot them: it looks like we have some signal here
 hist(pvals, xlab="p-value", main="", col="lightblue")
 
@@ -24,10 +29,10 @@ fdr_cut <- function(pvals, q=0.1){
   return(alpha)
 }
 
-fdr_cut(pvals)
+(fdr_cutoff <- fdr_cut(pvals))
 
 ## Re-run a cut regression using only these 25
-( signif <- which(pvals <= 0.0122) )
+( signif <- which(pvals <= fdr_cutoff) )
 cut <- glm(FAIL ~ ., data=SC[,c("FAIL", names(signif))], family="binomial")
 1 - cut$deviance/cut$null.deviance # new in-sample R2
 
@@ -65,7 +70,7 @@ K <- 10 # the number of `folds'
 foldid <- rep(1:K,each=ceiling(n/K))[sample(1:n)]
 
 #why not this?
-#sample.int(K, n)
+#sample.int(K, n, replace=TRUE)
 
 
 # create an empty dataframe of results
