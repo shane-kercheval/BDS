@@ -1,6 +1,6 @@
 #### web-browsing data
-
 library(gamlr)
+library(tidyverse)
 
 ## Browsing History. 
 ## The table has three colums: [machine] id, site [id], [# of] visits
