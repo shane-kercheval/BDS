@@ -42,6 +42,7 @@ head(dplyr_web[1:10, 1:5])
 
 ## use this info in a sparse matrix
 ## this is something you'll be doing a lot; familiarize yourself.
+# this seems to auto arrange by web$id
 xweb <- sparseMatrix(
 	i=as.numeric(web$id),  # i = row = person; this will have duplicates as the same person can appear many times in the dataset (i.e may be assocaited with multiple websites)
 	j=as.numeric(web$site),  # j = column = website; this will also have duplicates as each person is associated with many websites and a website with many people
@@ -79,6 +80,8 @@ yspend <- read.csv("browser-totalspend.csv", row.names=1)  # us 1st column as ro
 yspend <- as.matrix(yspend) ## good practice to move from dataframe to matrix
 
 ## run a lasso path plot
+# xweb seems to auto arrange by web$id, so these should be in the same order, even
+# though it doesn't look like we did anything to manually arrange
 spender <- gamlr(xweb, log(yspend), verb=TRUE)
 plot(spender) ## path plot
 
