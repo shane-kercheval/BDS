@@ -15,12 +15,18 @@ head(web)
 ## get total visits per-machine and % of time on each site
 ## tapply(a,b,c) does c(a) for every level of factor b.
 
-library(dplyr)
 web %>% count(id, wt=visits) %>% head()
 
 machinetotals <- as.vector(tapply(web$visits, web$id, sum))
 machinetotals[1:6]  # same as count above
 visitpercent <- 100 * web$visits / machinetotals[web$id]
+
+# the end result is that each id should add up to 100%
+web %>%
+    mutate(visit_percent = visitpercent) %>%
+    group_by(id) %>%
+    summarise(total_percent = sum(visit_percent)) %>%
+    ungroup()
 
 ## use this info in a sparse matrix
 ## this is something you'll be doing a lot; familiarize yourself.
