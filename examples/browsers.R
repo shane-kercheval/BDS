@@ -21,12 +21,24 @@ machinetotals <- as.vector(tapply(web$visits, web$id, sum))
 machinetotals[1:6]  # same as count above
 visitpercent <- 100 * web$visits / machinetotals[web$id]
 
-# the end result is that each id should add up to 100%
-web %>%
+dplyr_web <- web %>%
     mutate(visit_percent = visitpercent) %>%
+    select(-visits)
+as.numeric(object.size(dplyr_web)) / 1024^2
+
+# the end result is that each id should add up to 100%
+dplyr_web %>%
     group_by(id) %>%
     summarise(total_percent = sum(visit_percent)) %>%
     ungroup()
+
+#this is the same thing as the sparse matrix below (only takes up more memory, presumably)
+dplyr_web <- dplyr_web %>%
+    pivot_wider(names_from = site,
+                values_from = visit_percent)
+# more than doubles in size
+as.numeric(object.size(dplyr_web)) / 1024^2
+head(dplyr_web[1:10, 1:5])
 
 ## use this info in a sparse matrix
 ## this is something you'll be doing a lot; familiarize yourself.
@@ -38,6 +50,16 @@ xweb <- sparseMatrix(
 	       nlevels(web$site)),  # number of columns
 	dimnames=list(id=levels(web$id),  # row names
 	              site=levels(web$site)))  # column names
+
+# smaller than both before/longer dplyr_web
+as.numeric(object.size(xweb)) / 1024^2
+
+dplyr_web %>%
+    filter(id == 1) %>%
+    select(`atdmt.com`, `yahoo.com`, `whenu.com`) %>%
+    head()
+xweb[1, 1:3]
+
 nrow(web)
 nlevels(web$id)
 nlevels(web$site)
