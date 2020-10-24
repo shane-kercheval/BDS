@@ -69,12 +69,11 @@ Baicc[1:5]
 #  regardless of any info about what teams are playing or who is on ice.
 #  It's the home ice advantage!  
 #  We find that home-ice increases odds you've scored by 8%
-View(as.matrix(coef(nhlreg)))
-coef(nhlreg)[1]
+as.matrix(coef(nhlreg))[1:5,]
 exp(coef(nhlreg)[1])
 #  Now, lets look at the player effects.
 #  The regression finds 646 significant player effects
-sum(Baicc!=0)
+sum(Baicc != 0)
 # Here are the top 10 players
 Baicc[order(Baicc, decreasing=TRUE)[1:10]]
 # Here are the bottom 10 
