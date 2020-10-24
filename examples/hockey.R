@@ -6,28 +6,71 @@
 
 library(gamlr) # loads Matrix as well
 help(hockey) # describes the hockey data and shows an example regression
-
+# each record corresponds to every goal scored, with a binary for home/away team
 data(hockey) # load the data
+head(goal)
+head(player)
+# player, team, goal hae the same number of rows
+dim(player)
+nrow(goal)
+dim(team)
+
+player[1:3, 1:7]
+team[1:3, 1:200]
+config[1:3, 1:7]
+
+# classic PM (plus-minus) performance metric.
+# A function of goals scored while that player is on the ice:
+# the number of golas for his tema minus the number against.
+# vector where 1 is homegoal and negative -1 is away go
+goals_plus_minus <- ifelse(goal$homegoal, 1, -1)
+# author uses c(-1,1)[goal$homegoal+1] which is essentially just a lookup, but ifelse is 
+# easier to read; they should be the same
+all(goals_plus_minus == c(-1,1)[goal$homegoal+1])
+
+# each player is represented in a column in `player`
+# each player has a 1 or -1 if they were on the ice when the goal was scored
+# 1 for everyone on the home team and -1 for everyone on the away team
+# we want something slightly different; we want a 1 if it was "your" team that scored
+# and a -1 if it was "their" team that scored
+# so multiplying player*goals_plus_minus will either flip the 1 or not
+# e.g.
+# goals_plus_minus | player | result
+#     1   |  1   | 1    it was a home goal and you are on the home team, so you scored
+#     -1  |  1   | -1   it was an away goal and you were on the home team, so they scored
+#     1   |  -1  | -1   it was a home goal and you were on the away team, so they scored
+#     -1  |  -1  | 1    it was an away goal and you were on the away team, so you scored
+PM <- colSums(player*goals_plus_minus) # +1 for goal by your team, -1 by other team
+# top 10 highest PM scores
+rev(sort(PM))[1:10]
+
 
 # Combine the covariates all together
 x <- cBind(config,team,player) # cBind binds together two sparse matrices
-
 # build 'y': home vs away, binary response
 y <- goal$homegoal
 
+# first 2 goals are from away team
+y[1:2]
+# configuration/team/players (1 for home, -1 for away)
+View(as.matrix(x[1:2,]))
+
 nhlreg <- gamlr(x, y, verb=TRUE,
-	free=1:(ncol(config)+ncol(team)), ## free denotes unpenalized columns
-	family="binomial", standardize=FALSE)
+                free=1:(ncol(config)+ncol(team)), ## free denotes unpenalized columns
+                family="binomial", standardize=FALSE)
 
 ## coefficients (grab only the players)
-# AICc selection 
+# AICc selection is the default
 Baicc <- coef(nhlreg)[colnames(player),]
+Baicc[1:5]
 
 #  First, a simple gut-check point: the intercept.
 #  This is the effect on odds that a goal is home rather than away,
 #  regardless of any info about what teams are playing or who is on ice.
 #  It's the home ice advantage!  
 #  We find that home-ice increases odds you've scored by 8%
+View(as.matrix(coef(nhlreg)))
+coef(nhlreg)[1]
 exp(coef(nhlreg)[1])
 #  Now, lets look at the player effects.
 #  The regression finds 646 significant player effects
@@ -86,7 +129,7 @@ sort(Bcvmin,decreasing=TRUE)[1:10] # similar top 10
 # Both AIC and AICc are trying to approximate the OOS deviance (MSE here).
 # Thus the lambdas at minimum AIC and AICc values are estimates of the 
 # lambda which minimizes OOS error -- the same thing targeted with the cv.min rule.
-# Also, in this case, the degrees of  freedom are low enough relative to 'n' 
+# Also, in this case, the degrees of freedom are low enough relative to 'n' 
 # that AIC works fine, and gives an answer close to AICc. 
 #
 # The 1se rule accounts for uncertainty about OOS error, and thus chooses a simpler model.
