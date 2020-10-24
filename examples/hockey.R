@@ -77,6 +77,8 @@ percent(exp(Baicc[top_10_PMs]) - 1)
 #  We find that home-ice increases odds you've scored by 8%
 as.matrix(coef(nhlreg))[1:5,]
 exp(coef(nhlreg)[1])
+percent(exp(coef(nhlreg)[1]) - 1)
+
 #  Now, lets look at the player effects.
 #  The regression finds 646 significant player effects
 sum(Baicc != 0)
@@ -88,6 +90,7 @@ Baicc[order(Baicc)[1:10]]
 #  Pittsburgh's odds of having scored (rather than scored on) 
 #  increase by a 51% if Sidney Crosby is on the ice.  
 exp(Baicc["SIDNEY_CROSBY"])
+percent(exp(Baicc["SIDNEY_CROSBY"]) - 1)
 #  And the Blue Jackets (or Kings, pre 2011-12) odds of having scored 
 #  drop by around 22% if Jack Johnson is on the ice.
 exp(Baicc["JACK_JOHNSON"])
