@@ -43,6 +43,7 @@ all(goals_plus_minus == c(-1,1)[goal$homegoal+1])
 PM <- colSums(player*goals_plus_minus) # +1 for goal by your team, -1 by other team
 # top 10 highest PM scores
 rev(sort(PM))[1:10]
+top_10_PMs <- names(rev(sort(PM))[1:10])
 
 
 # Combine the covariates all together
@@ -63,6 +64,11 @@ nhlreg <- gamlr(x, y, verb=TRUE,
 # AICc selection is the default
 Baicc <- coef(nhlreg)[colnames(player),]
 Baicc[1:5]
+Baicc[top_10_PMs]
+library(scales)
+# pg 96 "odds of having scored (rather than having been scored on) 
+# increase by 51% if Sidney Scrosby is on the ice."
+percent(exp(Baicc[top_10_PMs]) - 1)
 
 #  First, a simple gut-check point: the intercept.
 #  This is the effect on odds that a goal is home rather than away,
