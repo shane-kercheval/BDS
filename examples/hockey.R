@@ -94,6 +94,7 @@ percent(exp(Baicc["SIDNEY_CROSBY"]) - 1)
 #  And the Blue Jackets (or Kings, pre 2011-12) odds of having scored 
 #  drop by around 22% if Jack Johnson is on the ice.
 exp(Baicc["JACK_JOHNSON"])
+percent(exp(Baicc["JACK_JOHNSON"]) - 1)
 # hockey fans among you may feel free to comment in much more detail.
 
 # Without standardize=FALSE, you'd be multiplying the penalty for each
