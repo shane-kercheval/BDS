@@ -21,7 +21,7 @@ config[1:3, 1:7]
 
 # classic PM (plus-minus) performance metric.
 # A function of goals scored while that player is on the ice:
-# the number of golas for his tema minus the number against.
+# the number of golas for his team minus the number against.
 # vector where 1 is homegoal and negative -1 is away go
 goals_plus_minus <- ifelse(goal$homegoal, 1, -1)
 # author uses c(-1,1)[goal$homegoal+1] which is essentially just a lookup, but ifelse is 
