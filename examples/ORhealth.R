@@ -6,7 +6,7 @@
 # admin data is clean, survey data no necessarily balanced due to non-response bias
 # admin data has hospital admission (by dept, emerg itself is non-signif)
 # we can also look at number of hostpital days or total list cost
-
+library(tidyverse)
 library(foreign)
 
 descr <- read.dta("OHIE_Public_Use_Files/OHIE_Data/oregonhie_descriptive_vars.dta")
@@ -72,13 +72,16 @@ head(P)
 dim(P)
 table(P$selected)
 
-P %>% group_by(selected) %>% summarise(perc_doc_any_12m = mean(doc_any_12m))
+P %>%
+    group_by(selected) %>%
+    summarise(perc_doc_any_12m = mean(doc_any_12m),
+              var_doc_any_12m = var(doc_any_12m))
 
 (ybar <- tapply(P$doc_any_12m, P$selected, mean))
 ( ATE = ybar['1'] - ybar['0'] )
 
-nsel <- table(P[,c("selected")])
-yvar <- tapply(P$doc_any_12m, P$selected, var)
+(nsel <- table(P$selected))
+(yvar <- tapply(P$doc_any_12m, P$selected, var))
 ( seATE = sqrt(sum(yvar/nsel)) )
 
 ATE + c(-2,2)*seATE
@@ -90,8 +93,8 @@ P %>%
               weighted_total = sum(weights),
               weighted_perc = weighted_doc / weighted_total)
 
-nsel_w <- tapply(weights, P$selected, sum)
-ybar_w <- tapply(weights * P$doc_any_12m, P$selected, sum)/nsel_w
+(nsel_w <- tapply(weights, P$selected, sum))
+(ybar_w <- tapply(weights * P$doc_any_12m, P$selected, sum)/nsel_w)
 ( ATEweighted <-  ybar_w['1'] - ybar_w['0'] )
 
 ## unweighted analysis for all response options
